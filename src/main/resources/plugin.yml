@@ -1,0 +1,14 @@
+name: PunchSnowball
+version: 1.0.0
+main: com.example.punchsnowball.PunchSnowballPlugin
+api-version: '1.21.11'
+description: Infinite 5-second cooldown knockback snowball
+commands:
+  givesnowball:
+    description: Gives a player an infinite Punch Snowball
+    usage: /givesnowball [player]
+    permission: punchsnowball.give
+permissions:
+  punchsnowball.give:
+    description: Allows giving Punch Snowballs
+    default: op
