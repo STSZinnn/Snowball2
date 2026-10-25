@@ -17,13 +17,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.List;
 
 public final class PunchSnowballPlugin extends JavaPlugin implements Listener {
     private NamespacedKey specialKey;
-    private static final int COOLDOWN_TICKS = 100;
+    private static final int COOLDOWN_TICKS = 140; // 7 seconds
+    private static final int SLOWNESS_TICKS = 40; // 2 seconds
+    private static final double KNOCKBACK_HORIZONTAL = 1.9;
+    private static final double KNOCKBACK_VERTICAL = 0.38;
 
     @Override
     public void onEnable() {
@@ -35,8 +40,8 @@ public final class PunchSnowballPlugin extends JavaPlugin implements Listener {
         ItemStack item = new ItemStack(Material.SNOWBALL);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ChatColor.AQUA + "Punch Snowball");
-        meta.setLore(List.of(ChatColor.GRAY + "Infinite throws", ChatColor.GRAY + "5-second cooldown",
-                ChatColor.LIGHT_PURPLE + "Punch III-style knockback"));
+        meta.setLore(List.of(ChatColor.GRAY + "Infinite throws", ChatColor.GRAY + "7-second cooldown",
+                ChatColor.LIGHT_PURPLE + "Strong knockback + Slowness II (2s)"));
         meta.getPersistentDataContainer().set(specialKey, PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
         return item;
@@ -81,8 +86,12 @@ public final class PunchSnowballPlugin extends JavaPlugin implements Listener {
         }
         if (direction.lengthSquared() < 0.0001) direction = new Vector(0, 0, 1);
 
-        direction.normalize().multiply(1.7).setY(0.55);
+        // Velocity-based knockback, targeted at roughly 5 blocks on level ground.
+        // Actual distance varies with friction, obstacles, and server settings.
+        direction.normalize().multiply(KNOCKBACK_HORIZONTAL).setY(KNOCKBACK_VERTICAL);
         target.setVelocity(direction);
+        target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
+                SLOWNESS_TICKS, 1, false, true, true));
     }
 
     @Override
